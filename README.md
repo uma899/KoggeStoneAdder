@@ -6,7 +6,7 @@ It is a high speed parametrised adder. Its fastest as it works as levels of para
 * Fully Parameterized: Generate blocks are used. So layout will be laid based on bit length.
 * High Performance: Achieves $O(\log_2 N)$ gate delay through parallel prefix computation.
 
-### Testing
+### Testing:
 It is tested with around 10,000 test cases along with consideration of corner cases. 
 
 ### Trade-offs:
