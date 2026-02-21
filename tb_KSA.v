@@ -2,72 +2,80 @@
 
 module tb_KSA;
 
-    reg [3:0] A;
-    reg [3:0] B;
+    parameter size = 64;
+    parameter num_tests = 10000; // Number of random trials
+
+    reg [size - 1 : 0] A;
+    reg [size - 1 : 0] B;
     reg Cin;
 
-    wire [4:0] S;
+    wire [size:0] S;
 
-    reg [4:0] expected;
-    integer i, j, k;
+    reg [size:0] expected;
+    integer i;
     integer total_errors = 0;
-    integer unknown_errors = 0;
 
-    KSA uut (
+    KSA #(.N(size)) uut (
         .A(A), 
         .B(B), 
         .Cin(Cin), 
         .S(S)
     );
 
-    initial begin
-        $display("=================================================");
-        $display("STARTING FINAL EXHAUSTIVE TEST (512 COMBINATIONS)");
-        $display("=================================================");
-        
-        for (i = 0; i < 16; i = i + 1) begin
-            for (j = 0; j < 16; j = j + 1) begin
-                for (k = 0; k < 2; k = k + 1) begin
-                    
-                    A = i;
-                    B = j;
-                    Cin = k;
-                    
-                    #10; // Wait for combinational delay
-                    
-                    expected = A + B + Cin;
-                    
-                    // Use Case-Equality (===) to detect 'X' or 'Z'
-                    if (S !== expected) begin
-                        total_errors = total_errors + 1;
-                    end
-                        // Check if the failure is due to an 'X' (Floating wire)
-                        if (^S === 1'bx) begin
-                            $display("[FLOATING WIRE ERROR] A:%d B:%d Cin:%b | Got: %b (X) | Expected: %d", A, j, k, S, expected);
-                            unknown_errors = unknown_errors + 1;
-                        end else begin
-                            $display(" A:%d B:%d Cin:%b | Got: %d | Expected: %d", A, j, k, S, expected);
-                        end
-                   
-                end
+    task check_result;
+        begin
+            expected = A + B + Cin;
+            #1; // Small delay 
+            if (S !== expected) begin
+                $display("[ERROR] A:%h B:%h Cin:%b | Got:%h | Exp:%h", A, B, Cin, S, expected);
+                total_errors = total_errors + 1;
             end
         end
+    endtask
 
-        $display("=================================================");
-        $display("FINAL REPORT:");
-        $display("Total Combinations Tested: 512");
-        $display("Total Failures:            %0d", total_errors);
-        $display("Unknown (X) Failures:      %0d", unknown_errors);
+    initial begin
+
+        $display("STARTING RANDOMIZED TEST FOR %0d-BIT KSA", size);
+        $display("====================================");
         
-        if (total_errors == 0)
-            $display("RESULT: SUCCESS - Adder is perfect.");
-        else if (unknown_errors > 0)
-            $display("RESULT: - (X).");
-        else
-            $display("RESULT: - logic gates are incorrect.");
-        $display("=================================================");
+        // some corner cases
+        $display("Running Corner Cases...");
+        
+        A = 0; B = 0; Cin = 0; #10; check_result();
+        
+        A = {size{1'b1}}; B = 0; Cin = 1; #10; check_result();
+        A = {size{1'b1}}; B = {size{1'b1}}; Cin = 1; #10; check_result();
+        
+        // Test Alternating Bits (Crosstalk/Short check)
+        A = {size/2{2'b10}}; B = {size/2{2'b01}}; Cin = 0; #10; check_result();
+
+        // 2. RANDOMIZED TESTING
+        $display("Running %0d Random Trials...", num_tests);
+        for (i = 0; i < num_tests; i = i + 1) begin
+            A = $urandom;     
+            B = $urandom; 
+            Cin = $urandom % 2;
+            
+            #10;
+            check_result();
+            
+            // Printing progress for every 1000 tests
+            if (i % 1000 == 0 && i > 0) 
+                $display("...completed %0d tests", i);
+        end
+
+        // FINAL REPORT
+        $display("====================================");
+        $display("FINAL REPORT:");
+        $display("Tests Run: %0d", num_tests + 4);
+        if (total_errors == 0) begin
+            $display("RESULT: SUCCESS! No errors found.");
+        end else begin
+            $display("RESULT: FAILURE. Found %0d errors.", total_errors);
+        end
+        $display("====================================");
         
         $finish;
     end
-      
+
 endmodule
