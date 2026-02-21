@@ -11,4 +11,4 @@ Performing Synthesis.
 
 
 ## Prev. release
-Initially, four bit adder is made with manual wiring. That release can be foung at [4-bit-KSA]('https://github.com/uma899/KoggeStoneAdder/commit/093d526a6435a282f6afb98fb1d4dc210718cdbe')
+Initially, four bit adder is made with manual wiring. That release can be foung at [4-bit-KSA](https://github.com/uma899/KoggeStoneAdder/commit/093d526a6435a282f6afb98fb1d4dc210718cdbe)
