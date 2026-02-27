@@ -6,6 +6,11 @@ It is a high speed parametrised adder. Its fastest as it works as levels of para
 * Fully Parameterized: Generate blocks are used. So layout will be laid based on bit length.
 * High Performance: Achieves $O(\log_2 N)$ gate delay through parallel prefix computation.
 
+  ![Image](https://raw.githubusercontent.com/uma899/KoggeStoneAdder/refs/heads/main/8_bit.jpg)
+RTL Schematic
+
+  
+
 ### Testing:
 It is tested with around 10,000 test cases along with consideration of corner cases. 
 
@@ -13,7 +18,9 @@ It is tested with around 10,000 test cases along with consideration of corner ca
 It require more logic gates compared to other adders. So, much area is consumed.
 
 ### Future Plan:
-Performing Synthesis.
+* Timing & Performance Benchmarking
+* Physical Implementation & Verification on FPGA.
+* Optimize for area, like using Brent-Kung architecture.
 
 
 **Prev. release**
